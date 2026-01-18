@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout Patch Repository
-      uses: actions/checkout@v4.2.3
+      uses: actions/checkout@v4
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
