@@ -1,0 +1,58 @@
+name: Build Qt with MSVC and Patches
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Patch Repository
+      uses: actions/checkout@v4.2.3
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Download OpenSSL
+      run: |
+        $OpenSSLInstallerUrl = "https://slproweb.com/download/Win64OpenSSL-3_6_0.msi"
+        Invoke-WebRequest -Uri $OpenSSLInstallerUrl -OutFile "C:\Temp\Win64OpenSSL-3_6_0.msi"
+        Start-Process -FilePath "C:\Temp\Win64OpenSSL-3_6_0.msi" -ArgumentList '/silent' -Wait
+
+    - name: Verify OpenSSL Installation
+      run: |
+        set PATH="C:\Program Files\OpenSSL-Win64\bin;%PATH%"
+        openssl version
+
+    - name: Clone Qt Source from GitHub Mirror
+      run: |
+        git clone --branch 6.10.0 --recursive https://github.com/qt/qtbase.git C:\Qt\6.10.0
+
+    - name: Apply Patches
+      run: |
+        xcopy /E /Y %cd%\src\* C:\Qt\6.10.0\src\
+
+    - name: Configure and Build Qt
+      run: |
+        cd C:\Qt\6.10.0
+        mkdir qt_build
+        cd qt_build
+        "C:\Qt\6.10.0\src\configure.bat" -prefix "C:\Qt\6.10.0\msvc2022_64" -skip qtgraphs -skip qtquicktimeline -skip qtquick3d -skip qt3d -skip qtactiveqt -skip qtdatavis3d -skip qthttpserver -skip qtmqtt -skip qtnetworkauth -skip qtopcua -skip qtquick3dphysics -skip qtquickeffectmaker -skip qtremoteobjects -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtspeech -skip qtwayland -skip qtdoc -skip qtwebview -skip qtvirtualkeyboard -skip qtwebengine -skip qtgrpc -skip qtwebchannel -opensource -opengl desktop -confirm-license -platform win32-msvc -release -openssl-linked -- -Wno-dev "-DOPENSSL_ROOT_DIR=C:\Program Files\OpenSSL-Win64" "-DOPENSSL_INCLUDE_DIR=C:\Program Files\OpenSSL-Win64\include" -DOPENSSL_USE_STATIC_LIBS=ON  -DQT_BUILD_EXAMPLES=OFF  -DQT_BUILD_TESTS=OFF      
+        cmake --build . --parallel
+        cmake --install .
+
+    - name: Archive and Upload Qt Build
+      run: |
+        # Change directory to where the Qt installation exists
+        cd C:\Qt\6.10.0\msvc2022_64
+        # Create a ZIP file of the Qt build directory
+        Compress-Archive -Path ".\*" -DestinationPath "C:\Qt\Qt_6.10.0_x86_64.zip"
+      # Uploading the ZIP file as a release asset
+    - name: Upload Release Asset
+      uses: ncipollo/release-action@main
+      with:
+        tag: v6.10.0
+        artifacts: C:\Qt\Qt_6.10.0_x86_64.zip
