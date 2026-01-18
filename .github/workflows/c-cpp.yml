@@ -40,7 +40,7 @@ jobs:
         
 
     - name: Configure and Build Qt
-      shell: cmd
+      shell: bash
       run: |
         cd 'C:\Qt\6.10.0'
         mkdir qt_build
