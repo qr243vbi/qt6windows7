@@ -33,7 +33,7 @@ jobs:
     - name: Apply Patches
       shell: bash
       run: |
-        cp -Rfv "$PWD\src\"* 'C:\Qt\6.10.0\src'
+        cp -Rfv "$PWD/src/"* 'C:\Qt\6.10.0\src'
 
     - name: Configure and Build Qt
       run: |
