@@ -31,7 +31,7 @@ jobs:
       run: |
         git clone --branch 6.10.0 --single-branch --depth 1 https://github.com/qt/qt5.git C:\Qt\6.10.0
         cd /d C:\Qt\6.10.0
-        .\init-repository.bat --module-subset=essential
+        .\init-repository.bat --module-subset=essential,-qtwebengine
 
     - name: Apply Patches
       shell: bash
