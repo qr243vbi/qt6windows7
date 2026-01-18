@@ -1,0 +1,34 @@
+name: 'Setup QT6'
+description: 'Downloads and sets up Qt6'
+inputs:
+  version:
+    description: 'Qt version to download'
+    required: true
+    default: '6.10.0_x86_64'
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Zip and Curl
+      uses: ConorMacBride/install-package@v1
+      with:
+        choco: zip curl
+
+    - name: Download Qt6
+      uses: ethanjli/cached-download-action@v0.1.3
+      with:
+        url: https://github.com/qr243vbi/qt6windows7/releases/download/v${{ inputs.version }}/Qt_${{ inputs.version }}.zip
+        destination: qt.zip
+
+    - name: Unpack Qt6
+      run: |
+        mkdir -p Qt_${{ inputs.version }}
+        unzip qt.zip -d Qt_${{ inputs.version }}/
+      shell: bash
+
+    - name: Set Qt6_DIR and update PATH
+      run: |
+        echo "QT6_DIR=$(pwd)/Qt_${{ inputs.version }}" >> $GITHUB_ENV
+        echo "$(pwd)/Qt_${{ inputs.version }}/bin" >> $GITHUB_PATH
+        echo "QT6_DIR set to $QT6_DIR"
+        echo "PATH updated to include $QT6_DIR/bin"
+      shell: bash
