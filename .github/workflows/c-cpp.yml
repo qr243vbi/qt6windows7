@@ -29,22 +29,23 @@ jobs:
     - name: Clone Qt Source from GitHub Mirror
       shell: cmd
       run: |
-        git clone --branch 6.10.0 --single-branch --depth 1 https://github.com/qt/qt5.git C:\Qt\6.10.0
-        cd /d C:\Qt\6.10.0
+        git clone --branch 6.10.0 --single-branch --depth 1 https://github.com/qt/qt5.git C:\Qt\6.10.0\src
+        cd /d C:\Qt\6.10.0\src
         .\init-repository.bat --module-subset=essential,-qtwebengine
 
     - name: Apply Patches
       shell: bash
       run: |
-        cp -Rfv "$PWD/qtbase/src/"* 'C:\Qt\6.10.0\qtbase\src'
+        cp -Rfv "$PWD/qtbase/src/"* 'C:\Qt\6.10.0\src\qtbase\src'
+        
 
     - name: Configure and Build Qt
       shell: cmd
       run: |
-        cd /D C:\Qt\6.10.0
+        cd 'C:\Qt\6.10.0'
         mkdir qt_build
         cd qt_build
-        "C:\Qt\6.10.0\src\configure.bat" -prefix "C:\Qt\6.10.0\msvc2022_64" -skip qtgraphs -skip qtquicktimeline -skip qtquick3d -skip qt3d -skip qtactiveqt -skip qtdatavis3d -skip qthttpserver -skip qtmqtt -skip qtnetworkauth -skip qtopcua -skip qtquick3dphysics -skip qtquickeffectmaker -skip qtremoteobjects -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtspeech -skip qtwayland -skip qtdoc -skip qtwebview -skip qtvirtualkeyboard -skip qtwebengine -skip qtgrpc -skip qtwebchannel -opensource -opengl desktop -confirm-license -platform win32-msvc -release -openssl-linked -- -Wno-dev "-DOPENSSL_ROOT_DIR=C:\Program Files\OpenSSL" "-DOPENSSL_INCLUDE_DIR=C:\Program Files\OpenSSL\include" -DOPENSSL_USE_STATIC_LIBS=ON  -DQT_BUILD_EXAMPLES=OFF  -DQT_BUILD_TESTS=OFF      
+        'C:\Qt\6.10.0\src\configure.bat' -prefix 'C:\Qt\6.10.0\msvc2022_64' -skip qtgraphs -skip qtquicktimeline -skip qtquick3d -skip qt3d -skip qtactiveqt -skip qtdatavis3d -skip qthttpserver -skip qtmqtt -skip qtnetworkauth -skip qtopcua -skip qtquick3dphysics -skip qtquickeffectmaker -skip qtremoteobjects -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtspeech -skip qtwayland -skip qtdoc -skip qtwebview -skip qtvirtualkeyboard -skip qtwebengine -skip qtgrpc -skip qtwebchannel -opensource -opengl desktop -confirm-license -platform win32-msvc -release -openssl-linked -- -Wno-dev '-DOPENSSL_ROOT_DIR=C:\Program Files\OpenSSL' '-DOPENSSL_INCLUDE_DIR=C:\Program Files\OpenSSL\include' -DOPENSSL_USE_STATIC_LIBS=ON  -DQT_BUILD_EXAMPLES=OFF  -DQT_BUILD_TESTS=OFF      
         cmake --build . --parallel
         cmake --install .
 
